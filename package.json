@@ -1,0 +1,42 @@
+{
+	"name": "solid-modals",
+	"version": "0.1.0",
+	"description": "A container for handle modals and hamburgers",
+	"info": "for pop modal from any component and clear with outside action or route change",
+	"author": "Saeed Latifi",
+	"main": "dist/index.js",
+	"module": "./dist/index.js",
+	"type": "module",
+	"exports": {
+		".": {
+			"import": "./dist/index.js",
+			"types": "./dist/index.d.ts"
+		}
+	},
+	"scripts": {
+		"build": "tsc"
+	},
+	"homepage": "https://github.com/saeed-latifi/solid_modal",
+	"contributors": [
+		{
+			"name": "Saeed Latifi",
+			"email": "saeed.latifi.dev@gmail.com"
+		}
+	],
+	"license": "MIT",
+	"peerDependencies": {
+		"solid-js": "^1.7.3",
+		"@solidjs/router": "^0.15.0"
+	},
+	"devDependencies": {
+		"solid-js": "^1.7.3",
+		"typescript": "^5.9.3",
+		"vite": "^7.1.9"
+	},
+	"keywords": [
+		"solid",
+		"solid.js",
+		"modal",
+		"hamburger"
+	]
+}
