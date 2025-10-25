@@ -1,4 +1,4 @@
-import { useLocation } from "@solidjs/router";
+// import { useLocation } from "@solidjs/router";
 import { createContext, useContext, JSXElement, createSignal, createEffect, Show, ParentProps, onMount } from "solid-js";
 import { Portal } from "solid-js/web";
 
@@ -12,7 +12,7 @@ const ModalContext = createContext<ModalContextType>();
 
 export function ModalProvider(props: ParentProps) {
 	const [rawModal, setRawModal] = createSignal<JSXElement | undefined>();
-	const location = useLocation();
+	// const location = useLocation();
 
 	function onModal(modal: JSXElement) {
 		setRawModal(modal);
@@ -22,10 +22,10 @@ export function ModalProvider(props: ParentProps) {
 		setRawModal(undefined);
 	}
 
-	createEffect(() => {
-		location.pathname;
-		onClear();
-	});
+	// createEffect(() => {
+	// 	// location.pathname;
+	// 	onClear();
+	// });
 
 	const value: ModalContextType = {
 		onModal,

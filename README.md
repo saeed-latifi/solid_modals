@@ -4,11 +4,11 @@
 
 Features:
 
--   Simple use
--   Smooth modal
--   Hamburger
--   Clear on route change
--   Use any where with your costume wrapper
+- Simple use
+- Smooth modal
+- Hamburger
+- Clear on route change
+- Use any where with your costume wrapper
 
 ## install
 

@@ -1,42 +1,74 @@
 {
 	"name": "solid-modals",
-	"version": "0.1.0",
-	"description": "A container for handle modals and hamburgers",
-	"info": "for pop modal from any component and clear with outside action or route change",
-	"author": "Saeed Latifi",
-	"main": "dist/index.js",
-	"module": "./dist/index.js",
-	"type": "module",
+	"version": "0.1.4",
+	"description": "A container for handling modals and hamburger menus in SolidJS",
+	"main": "dist/cjs/index.js",
+	"module": "dist/esm/index.js",
+	"types": "dist/types/index.d.ts",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/saeed-latifi/solid_modals.git"
+	},
 	"exports": {
-		".": {
-			"import": "./dist/index.js",
-			"types": "./dist/index.d.ts"
-		}
+		"solid": {
+			"development": "./dist/source/index.jsx",
+			"import": "./dist/source/index.jsx"
+		},
+		"development": {
+			"import": {
+				"types": "./dist/types/index.d.ts",
+				"default": "./dist/esm/index.js"
+			},
+			"require": "./dist/cjs/index.js"
+		},
+		"import": {
+			"types": "./dist/types/index.d.ts",
+			"default": "./dist/esm/index.js"
+		},
+		"require": "./dist/cjs/index.js"
 	},
-	"scripts": {
-		"build": "tsc"
-	},
-	"homepage": "https://github.com/saeed-latifi/solid_modals",
-	"contributors": [
-		{
-			"name": "Saeed Latifi",
-			"email": "saeed.latifi.dev@gmail.com"
-		}
+	"files": [
+		"dist",
+		"src"
 	],
-	"license": "MIT",
-	"peerDependencies": {
-		"solid-js": "^1.7.3",
-		"@solidjs/router": "^0.15.0"
-	},
-	"devDependencies": {
-		"solid-js": "^1.7.3",
-		"typescript": "^5.9.3",
-		"vite": "^7.1.9"
-	},
+	"author": "Saeed Latifi <saeed.latifi.dev@gmail.com>",
 	"keywords": [
 		"solid",
-		"solid.js",
+		"solidjs",
 		"modal",
-		"hamburger"
-	]
+		"modals",
+		"dialog",
+		"hamburger",
+		"menu",
+		"overlay",
+		"portal"
+	],
+	"license": "MIT",
+	"homepage": "https://github.com/saeed-latifi/solid_modals#readme",
+	"bugs": {
+		"url": "https://github.com/saeed-latifi/solid_modals/issues"
+	},
+	"sideEffects": false,
+	"scripts": {
+		"build": "rollup -c",
+		"minify": "terser --compress --mangle --module -- dist/cjs/index.js > dist/cjs/index.min.js",
+		"format": "prettier --write src dev"
+	},
+	"dependencies": {},
+	"peerDependencies": {
+		"solid-js": "^1.5.4"
+	},
+	"devDependencies": {
+		"solid-js": "^1.5.4",
+		"@rollup/plugin-babel": "^6.0.0",
+		"@types/node": "^18.7.16",
+		"prettier": "^2.7.1",
+		"rollup": "^2.75.7",
+		"rollup-plugin-terser": "^7.0.2",
+		"rollup-preset-solid": "^1.4.0",
+		"terser": "^5.14.1",
+		"typescript": "^4.6.4",
+		"@tailwindcss/vite": "^4.0.7",
+		"tailwindcss": "^4.0.7"
+	}
 }
