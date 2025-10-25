@@ -16,7 +16,7 @@
 	"scripts": {
 		"build": "tsc"
 	},
-	"homepage": "https://github.com/saeed-latifi/solid_modal",
+	"homepage": "https://github.com/saeed-latifi/solid_modals",
 	"contributors": [
 		{
 			"name": "Saeed Latifi",
