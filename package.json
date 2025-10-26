@@ -1,6 +1,6 @@
 {
 	"name": "solid-modals",
-	"version": "0.1.4",
+	"version": "0.1.5",
 	"description": "A container for handling modals and hamburger menus in SolidJS",
 	"main": "dist/cjs/index.js",
 	"module": "dist/esm/index.js",
@@ -56,9 +56,11 @@
 	},
 	"dependencies": {},
 	"peerDependencies": {
-		"solid-js": "^1.5.4"
+		"solid-js": "^1.5.4",
+		"@solidjs/router": "^0.15.0"
 	},
 	"devDependencies": {
+		"@solidjs/router": "^0.15.0",
 		"solid-js": "^1.5.4",
 		"@rollup/plugin-babel": "^6.0.0",
 		"@types/node": "^18.7.16",

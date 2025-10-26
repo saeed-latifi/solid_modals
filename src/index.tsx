@@ -1,98 +1,106 @@
-// import { useLocation } from "@solidjs/router";
-import { createContext, useContext, JSXElement, createSignal, createEffect, Show, ParentProps, onMount } from "solid-js";
-import { Portal } from "solid-js/web";
+import { useLocation } from "@solidjs/router";
+import { JSXElement, createSignal, createEffect, onMount } from "solid-js";
+import { JSX } from "solid-js";
+import { createStore } from "solid-js/store";
 
-export type ModalContextType = {
-	onModal: (modal: JSXElement) => void;
-	onClear: () => void;
-	rawModal: () => JSXElement | undefined;
-};
-
-const ModalContext = createContext<ModalContextType>();
-
-export function ModalProvider(props: ParentProps) {
-	const [rawModal, setRawModal] = createSignal<JSXElement | undefined>();
-	// const location = useLocation();
-
-	function onModal(modal: JSXElement) {
-		setRawModal(modal);
-	}
-
-	function onClear() {
-		setRawModal(undefined);
-	}
-
-	// createEffect(() => {
-	// 	// location.pathname;
-	// 	onClear();
-	// });
-
-	const value: ModalContextType = {
-		onModal,
-		onClear,
-		rawModal,
-	};
-
-	return <ModalContext.Provider value={value}>{props.children}</ModalContext.Provider>;
+export interface Modal {
+	modal?: JSX.Element;
 }
 
+const [store, setStore] = createStore<Modal>({});
+
 export function useModal() {
-	const context = useContext(ModalContext);
-	if (!context) {
-		throw new Error("useModal must be used within a ModalProvider");
+	function showModal(modal: JSX.Element) {
+		setStore("modal", modal);
 	}
-	const { onClear, onModal } = context;
-	return { onClear, onModal };
+
+	function clearModal() {
+		setStore("modal", undefined);
+	}
+
+	const location = useLocation();
+	createEffect(() => {
+		location.pathname;
+		clearModal();
+	});
+
+	return { showModal, clearModal };
 }
 
 export function ModalRoot() {
-	const context = useContext(ModalContext);
-	if (!context) {
-		throw new Error("useModal must be used within a ModalProvider");
-	}
-
-	return (
-		<Portal>
-			<Show when={!!context.rawModal()}>{context.rawModal()}</Show>
-		</Portal>
-	);
+	return <>{store.modal}</>;
 }
 
 // =====================================================
 
-type Props = {
+export type modalBaseArgs = {
 	onClear: () => void;
-	onOutClose?: boolean;
+	outsideClose?: boolean;
 	children: JSXElement;
 	withAnimation?: boolean;
 };
 
-export function ModalBase({ children, onClear, onOutClose = true, withAnimation = true }: Props) {
-	const wrapperBase = "w-full min-h-[100.1%] h-full overflow-y-auto bg-fixed transition-all bg-black duration-200 bg-black";
-	const wrapperClose = wrapperBase + " " + "bg-opacity-0";
-	const wrapperOpen = wrapperBase + " " + "bg-opacity-70";
+export function ModalBase({ children, onClear, outsideClose: outsideClose = true, withAnimation = true }: modalBaseArgs) {
+	const baseWrapperStyle: JSX.CSSProperties = {
+		width: "100%",
+		"min-height": "100.1%",
+		height: "100%",
+		"overflow-y": "auto" as const,
+		"background-attachment": "fixed" as const,
+		transition: "all 200ms",
+		"background-color": "black",
+	};
 
-	const backBase = "flex items-center justify-center px-4 py-12 w-full h-max min-h-full transition-all duration-200";
-	const backClose = backBase + " " + " opacity-0 scale-90";
-	const backOpen = backBase + " " + " opacity-100 scale-100";
+	const wrapperCloseStyle: JSX.CSSProperties = {
+		...baseWrapperStyle,
+		"background-color": "rgba(0, 0, 0, 0)",
+	};
 
-	const [backgroundStyle, setBackgroundStyle] = createSignal(withAnimation ? backClose : backOpen);
-	const [wrapperStyle, setWrapperStyle] = createSignal(withAnimation ? wrapperClose : wrapperOpen);
+	const wrapperOpenStyle: JSX.CSSProperties = {
+		...baseWrapperStyle,
+		"background-color": "rgba(0, 0, 0, 0.7)",
+	};
+
+	const baseBackStyle: JSX.CSSProperties = {
+		display: "flex",
+		"align-items": "center",
+		"justify-content": "center",
+		padding: "48px 16px",
+		width: "100%",
+		height: "max-content",
+		"min-height": "100%",
+		transition: "all 200ms",
+	};
+
+	const backCloseStyle: JSX.CSSProperties = {
+		...baseBackStyle,
+		opacity: "0",
+		transform: "scale(0.9)",
+	};
+
+	const backOpenStyle: JSX.CSSProperties = {
+		...baseBackStyle,
+		opacity: "1",
+		transform: "scale(1)",
+	};
+
+	const [backgroundStyle, setBackgroundStyle] = createSignal(withAnimation ? backCloseStyle : backOpenStyle);
+	const [wrapperStyle, setWrapperStyle] = createSignal(withAnimation ? wrapperCloseStyle : wrapperOpenStyle);
 	const [onClose, setOnClose] = createSignal(false);
 
 	onMount(() => {
 		if (withAnimation) {
-			setBackgroundStyle(backOpen);
-			setWrapperStyle(wrapperOpen);
+			setBackgroundStyle(backOpenStyle);
+			setWrapperStyle(wrapperOpenStyle);
 		}
 	});
 
 	const handleWrapperClick = () => {
-		if (onOutClose) {
+		if (outsideClose) {
 			setOnClose(true);
 			if (withAnimation) {
-				setBackgroundStyle(backClose);
-				setWrapperStyle(wrapperClose);
+				setBackgroundStyle(backCloseStyle);
+				setWrapperStyle(wrapperCloseStyle);
 			} else {
 				onClear();
 			}
@@ -106,10 +114,31 @@ export function ModalBase({ children, onClear, onOutClose = true, withAnimation 
 	};
 
 	return (
-		<div class="fixed top-0 right-0 bottom-0 left-0 z-50 bg-fixed overscroll-none overflow-y-scroll w-full">
-			<div style={{ height: "100%" }} class={wrapperStyle()} onClick={handleWrapperClick}>
-				<div class={backgroundStyle()} onTransitionEnd={handleTransitionEnd}>
-					<div class="flex items-center justify-center max-w-full" onClick={(e) => e.stopPropagation()}>
+		<div
+			style={{
+				position: "fixed" as const,
+				top: "0",
+				right: "0",
+				bottom: "0",
+				left: "0",
+				"z-index": 50,
+				"background-attachment": "fixed" as const,
+				"overflow-y": "auto" as const,
+				width: "100%",
+				"overscroll-behavior": "none",
+			}}
+		>
+			<div style={{ ...wrapperStyle() }} onClick={handleWrapperClick}>
+				<div style={backgroundStyle()} onTransitionEnd={handleTransitionEnd}>
+					<div
+						style={{
+							display: "flex",
+							"align-items": "center",
+							"justify-content": "center",
+							"max-width": "100%",
+						}}
+						onClick={(e) => e.stopPropagation()}
+					>
 						{children}
 					</div>
 				</div>
@@ -119,35 +148,86 @@ export function ModalBase({ children, onClear, onOutClose = true, withAnimation 
 }
 
 export function ModalHamburger({ onClear, children }: { onClear: () => void; children: JSXElement }) {
-	const wrapper = "w-full h-[100.1%] overflow-y-auto bg-fixed transition-all bg-black duration-300";
-	const wrapperClose = wrapper + " " + "bg-opacity-0";
-	const wrapperOpen = wrapper + " " + "bg-opacity-70";
+	const baseWrapperStyle: JSX.CSSProperties = {
+		width: "100%",
+		height: "100.1%",
+		"overflow-y": "auto" as const,
+		"background-attachment": "fixed" as const,
+		transition: "all 300ms",
+		"background-color": "black",
+	};
 
-	const back = "absolute flex flex-col h-full w-[21rem] max-w-[75%] transition-all duration-300";
-	const backClose = back + " " + " -right-96";
-	const backOpen = back + " " + " right-0";
+	const wrapperCloseStyle: JSX.CSSProperties = {
+		...baseWrapperStyle,
+		"background-color": "rgba(0, 0, 0, 0)",
+	};
 
-	const [backgroundStyle, setBackgroundStyle] = createSignal(backClose);
-	const [wrapperStyle, setWrapperStyle] = createSignal(wrapperClose);
+	const wrapperOpenStyle: JSX.CSSProperties = {
+		...baseWrapperStyle,
+		"background-color": "rgba(0, 0, 0, 0.7)",
+	};
+
+	const baseBackStyle: JSX.CSSProperties = {
+		position: "absolute" as const,
+		display: "flex",
+		"flex-direction": "column" as const,
+		height: "100%",
+		width: "21rem",
+		"max-width": "75%",
+		transition: "all 300ms",
+	};
+
+	const backCloseStyle: JSX.CSSProperties = {
+		...baseBackStyle,
+		right: "-24rem",
+	};
+
+	const backOpenStyle: JSX.CSSProperties = {
+		...baseBackStyle,
+		right: "0",
+	};
+
+	const [backgroundStyle, setBackgroundStyle] = createSignal(backCloseStyle);
+	const [wrapperStyle, setWrapperStyle] = createSignal(wrapperCloseStyle);
 	const [onClose, setOnClose] = createSignal(false);
 
 	onMount(() => {
-		setBackgroundStyle(backOpen);
-		setWrapperStyle(wrapperOpen);
+		setBackgroundStyle(backOpenStyle);
+		setWrapperStyle(wrapperOpenStyle);
 	});
 
 	return (
-		<div class="fixed inset-0 z-50 bg-fixed overflow-y-scroll overscroll-none">
+		<div
+			style={{
+				position: "fixed" as const,
+				top: "0",
+				right: "0",
+				bottom: "0",
+				left: "0",
+				"z-index": 50,
+				"background-attachment": "fixed" as const,
+				"overflow-y": "auto" as const,
+				"overscroll-behavior": "none",
+			}}
+		>
 			<div
-				class={wrapperStyle()}
+				style={wrapperStyle()}
 				onClick={() => {
 					setOnClose(true);
-					setBackgroundStyle(backClose);
-					setWrapperStyle(wrapperClose);
+					setBackgroundStyle(backCloseStyle);
+					setWrapperStyle(wrapperCloseStyle);
 				}}
 			>
-				<div onTransitionEnd={(e) => onClose() && e.propertyName === "right" && onClear()} class={backgroundStyle()}>
-					<div class="flex flex-col w-full h-full" onClick={(e) => e.stopPropagation()}>
+				<div style={backgroundStyle()} onTransitionEnd={(e) => onClose() && (e as TransitionEvent).propertyName === "right" && onClear()}>
+					<div
+						style={{
+							display: "flex",
+							"flex-direction": "column" as const,
+							width: "100%",
+							height: "100%",
+						}}
+						onClick={(e) => e.stopPropagation()}
+					>
 						{children}
 					</div>
 				</div>

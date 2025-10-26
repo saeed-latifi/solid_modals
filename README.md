@@ -4,11 +4,11 @@
 
 Features:
 
-- Simple use
-- Smooth modal
-- Hamburger
-- Clear on route change
-- Use any where with your costume wrapper
+-   Simple use
+-   Smooth modal
+-   Hamburger
+-   Clear on route change
+-   Use any where with your costume wrapper
 
 ## install
 
@@ -27,19 +27,17 @@ base init in Solid-start app
 import { Router } from "@solidjs/router";
 import { FileRoutes } from "@solidjs/start/router";
 import { Suspense } from "solid-js";
-import { ModalRoot, ModalProvider } from "solid-modals";
+import { ModalRoot } from "solid-modals";
 
 
 export default function App() {
 	return (
 		<Router
 			root={(props) => (
-				<ModalProvider>
 					<Suspense>
 						{props.children}
 						<ModalRoot />
 					</Suspense>
-				</ModalProvider>
 			)}
 		>
 			<FileRoutes />
